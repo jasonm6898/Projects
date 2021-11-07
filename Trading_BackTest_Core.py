@@ -209,57 +209,6 @@ class StrategyBuilder:
             pa = [0 if x == 1 or x == 10 else x for x in pa]
             return pa
 
-    def sma_cross_over(self, n1: int, n2: int):
-        df = self.get_records()
-        price = df['Adj Close']
-        sma20 = price.rolling(window=n1).mean()
-        sma100 = price.rolling(window=n2).mean()
-        z = list(zip(price, sma20, sma100))[n2-1:]
-        position = []
-        res = []
-        for i, x in enumerate(z):
-            if x[1] > x[2] and -1 in res:
-                res = []
-                position.append(-10)
-                res.append(-10)
-            elif x[1] < x[2] and 1 in res:
-                res = []
-                position.append(10)
-                res.append(10)
-            elif x[1] > x[2] and 10 not in res:
-                res = []
-                position.append(1)
-                res.append(1)
-            elif x[1] < x[2] and -10 not in res:
-                res = []
-                position.append(-1)
-                res.append(-1)
-            else:
-                res = []
-                position.append(0)
-                res.append(0)
-        position = [0] * (n2-1) + position
-        return self.long_short_switch(position)
+    # def black-box(self, ):
+        # User Defined Strategy Building Area
 
-
-Strategy = StrategyBuilder(directory='C:\\Users\\Data\\Historical_Price',
-                           ticker='PYPL',
-                           long_only=False,
-                           long_short=True)
-n1_list = [25]
-n2_list = [100]
-count = 0
-for x1 in n1_list:
-    for x2 in n2_list:
-        Test = GetPerformance(path='C:\\Users\\Data\\Historical_Price\\',
-                              position=Strategy.sma_cross_over(n1=x1, n2=x2),
-                              price=[],
-                              share=1,
-                              ticker='PYPL',
-                              log_path='C:\\Users\\Data\\Log\\',
-                              log=True)
-        count += 1
-        print(f"Case(n1={x1}, n2={x2}): {count}\n{Test.p_stats()['sharpe']}\n{Test.p_stats()['adjusted_sharpe']}\n"
-              f"{Test.p_stats()['return']}\n{Test.p_stats()['market_return']}")
-        if count == 1:
-            Test.performance_plot()
